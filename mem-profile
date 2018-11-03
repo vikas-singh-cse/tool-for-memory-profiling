@@ -71,6 +71,8 @@ Once *.dat file has been generated a graph plot can be obtained by running "./mp
 several profiles to be kept at the same time. Note that this command will pick the latest *.dat file to plot the graph. So even if you have more than 
 one *.dat files this will always pick the most recent one.
 
+Click this link to see the graph: https://github.com/vikas-singh-cse/tool-for-memory-profiling/wiki/memory-graph-plot
+
 
  
 
