@@ -1,0 +1,148 @@
+
+You need to have(you can have at least one of them, but your memory report will look more detailed 
+and better with all three in place):
+
+memory_profiler
+matplotlib
+guppy
+
+
+memory_profiler 
+This is a python module for monitoring memory consumption of a process as well as line-by-line analysis of 
+memory consumption for python
+
+===Installation===
+CLI:
+  easy_install -U memory_profiler
+  pip install -U memory_profiler
+
+From source: 
+  To install from source, download the package, extract and type :
+  python setup.py install
+ 
+
+matplotlib 
+a python 2D plotting library which enables to plot graph in jpeg/png/pdf.etc format
+
+===Installation===
+CLI: 
+  sudo apt-get install python-matplotlib
+From source:
+  cd matplotlib
+  python setup.py build
+  python setup.py install
+ 
+guppy:
+This is a python module for monitoring memory consumption of a process as well as line-by-line analysis of 
+memory consumption for python.
+
+===Installation===
+From source:
+  cd <guppy-folder>
+  python setup.py build
+  python setup.py install
+  
+ USAGE
+1. import memory_profiler to the file you want to do memory profling:
+     from memory_profiler import profile
+2. Decorate the function you would like to profile with ``@profile``. 
+    In my-case I've profiled "run" method of file: file_to_be_profiled.py.
+
+3. You can also use guppy like this(refer file: file_to_be_profiled.py):
+    from guppy import hpy
+    hp = hpy()
+    before = hp.heap()   --> place it before the line from where you want to start profiling
+    # critical section here
+    after = hp.heap()    --> last line for profiling
+    leftover = after - before  
+Running the test_script:
+./mprof run --python test_script.py
+
+test_script.py will contain the test cases you intend to run(nimbula-api commands or any other CLIs). This will essentially record the time it took
+to execute the commands/CLIs(be it nimbula-api CLIs or any other command) and finally will record memory usage along time in a file written in the 
+current directory in format: mprofile_<time-stamp>.dat(e.g. mprofile_20150226153646.dat has been attached). 
+This file has 3 columns:
+1st column: "MEM" is just a label.
+2nd column: RSS (resident set size) in megabytes this process has used while running the commands from test_script.py.
+3rd column: Unix time stamp.
+Plotting the graph(you can specify any format like png/pdf/etc):
+./mprof plot --output=plot.png   
+Once *.dat file has been generated a graph plot can be obtained by running "./mprof plot". The recorded file contains a timestamps that allows for 
+several profiles to be kept at the same time. Note that this command will pick the latest *.dat file to plot the graph. So even if you have more than 
+one *.dat files this will always pick the most recent one.
+
+
+ 
+
+Sample output:
+LOCAL-mac-vikas$ cat mprofile_20150226153646.dat
+CMDLINE python test_script.py
+MEM 0.167969 1424945206.6646
+MEM 3.093750 1424945206.7698
+MEM 3.816406 1424945206.8747
+MEM 5.867188 1424945206.9797
+MEM 6.250000 1424945207.0829
+MEM 6.507812 1424945207.1880
+MEM 7.578125 1424945207.2930
+MEM 7.957031 1424945207.3983
+MEM 8.871094 1424945207.5033
+MEM 12.097656 1424945207.6071
+MEM 12.714844 1424945207.7118
+MEM 12.714844 1424945207.8166
+MEM 12.714844 1424945207.9217
+MEM 12.714844 1424945208.0261
+MEM 12.714844 1424945208.1321
+MEM 12.714844 1424945208.2371
+MEM 12.714844 1424945208.3421
+MEM 12.714844 1424945208.4471
+MEM 12.714844 1424945208.5512
+MEM 12.714844 1424945208.6565
+MEM 12.714844 1424945208.7603
+MEM 12.714844 1424945208.8653
+MEM 12.714844 1424945208.9691
+MEM 12.718750 1424945209.0738
+So your process(i.e. stuff inside test_script.py) ended up using 12.718750 MB.
+1424945209.0738 is the time-stamp and you can read it like this:
+>>> import time
+>>> print(time.ctime(1424945209.0738))
+Thu Feb 26 15:36:49 2015
+ 
+Alternatively you can also see line-by-line memory consumption of the method decorated with @profile.
+LOCAL-mac-vikas$ ./mprof run --python test_script.py
+mprof: Sampling memory every 0.1s
+running as a Python program...
+GC hook object was referred to from somebody!
+Partition of a set of 25 objects. Total size = 3624 bytes.
+
+Index  Count   %     Size   % Cumulative  % Kind (class / dict of class)   ||
+    0      7  28     1960  54      1960  54 dict (no owner)                ||  => These traces will only come if you've done guppy code instrumentation.
+    1      2   8      560  15      2520  70 dict of guppy.etc.Glue.Owner   ||
+    2      1   4      456  13      2976  82 types.FrameType                ||
+    3      9  36      216   6      3192  88 float                          ||
+    4      2   8      160   4      3352  92 types.MethodType               ||
+    5      2   8      144   4      3496  96 guppy.etc.Glue.Owner           ||
+    6      2   8      128   4      3624 100 str                            ||
+ 
+Line #    Mem usage    Increment   Line Contents
+================================================
+    8      7.9 MiB      0.0 MiB      @profile
+    9                                           def run():
+    10      7.9 MiB      0.0 MiB       print 'inside run...'
+    11      7.9 MiB      0.0 MiB       d = {}
+    12      7.9 MiB      0.0 MiB       l = []
+    13      8.2 MiB      0.4 MiB       hp = hpy()
+    14     12.2 MiB      3.9 MiB       before = hp.heap()
+    15                             
+    16     12.2 MiB      0.0 MiB       d["k1"] = 'val1'
+    17     12.2 MiB      0.0 MiB       d["k2"] = 10
+    18     12.2 MiB      0.0 MiB       count = 0
+    19     12.2 MiB      0.0 MiB       while (count < 9):
+    20     12.2 MiB      0.0 MiB           l.append(count) 
+    21     12.2 MiB      0.0 MiB           print 'The count is:', count
+    22     12.2 MiB      0.0 MiB           count = count + 1
+    23     12.2 MiB      0.0 MiB       print "Good bye!"
+    24     12.5 MiB      0.3 MiB       after = hp.heap()
+    25     12.5 MiB      0.0 MiB       leftover = after - before
+    26     13.0 MiB      0.5 MiB       print leftover
+ 
+ 
